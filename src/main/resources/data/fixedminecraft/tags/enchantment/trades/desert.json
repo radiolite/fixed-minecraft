@@ -3,8 +3,8 @@
         "minecraft:fire_protection",
         "minecraft:impaling",
         "minecraft:thorns",
-        "minecraft:efficiency",
         "minecraft:infinity",
-        "minecraft:wind_burst"
+        "minecraft:wind_burst",
+        "minecraft:efficiency"
     ]
 }

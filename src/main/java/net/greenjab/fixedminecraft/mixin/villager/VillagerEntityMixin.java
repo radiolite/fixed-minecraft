@@ -336,6 +336,67 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
     private EnchantedBookFactory masterBook(VillagerData villagerData) {
         Random rn = this.getWorld().random;
         VillagerEntity villagerEntity = (VillagerEntity) (Object) this;
+
+        TagKey<Enchantment> biomeTag = biomeEnchants.get(villagerData.type().getIdAsString());
+        if (biomeTag != null) {
+            // Bad way of getting the Special biome enchant
+            Iterable<RegistryEntry<Enchantment>> biomeEnchantments = villagerEntity.getWorld()
+                    .getRegistryManager()
+                    .getOrThrow(RegistryKeys.ENCHANTMENT)
+                    .iterateEntries(biomeTag);
+
+            RegistryEntry<Enchantment> specialEnchant = null;
+            for (RegistryEntry<Enchantment> enchant : biomeEnchantments) {
+                if (!enchant.isIn(EnchantmentTags.CURSE)) {
+                    specialEnchant = enchant;
+                }
+            }
+
+            if (specialEnchant != null) {
+                List<VillagerEntity> list = villagerEntity.getWorld()
+                        .getEntitiesByClass(VillagerEntity.class, villagerEntity.getBoundingBox().expand(32), EntityPredicates.VALID_LIVING_ENTITY);
+
+                boolean specialExists = false;
+                for (VillagerEntity villager2 : list) {
+                    if (villager2 != villagerEntity) {
+                        if (villager2.getVillagerData().profession().getIdAsString().contains(VillagerProfession.LIBRARIAN.getValue().toString())
+                            && villager2.getVillagerData().type() == villagerData.type()) {
+                            ItemStack eBook = ItemStack.EMPTY;
+                            if (villager2.getOffers().size() >= 10) {
+                                if (villager2.getOffers().get(8).getSellItem().isOf(Items.ENCHANTED_BOOK)) {
+                                    eBook = villager2.getOffers().get(8).getSellItem();
+                                }
+                                else if (villager2.getOffers().get(9).getSellItem().isOf(Items.ENCHANTED_BOOK)) {
+                                    eBook = villager2.getOffers().get(9).getSellItem();
+                                }
+                            }
+                            if (eBook.isOf(Items.ENCHANTED_BOOK)) {
+                                for (RegistryEntry<Enchantment> e : EnchantmentHelper.getEnchantments(eBook).getEnchantments()) {
+                                    if (e == specialEnchant) {
+                                        specialExists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!specialExists) {
+                    Enchantment enchantment = specialEnchant.value();
+                    int maxLevel = enchantment.getMaxLevel();
+                    int midLevel = (int) Math.ceil(maxLevel / 2.0);
+                    int level = maxLevel == 1 ? 1 : ((midLevel + rn.nextInt(maxLevel - midLevel)) + 1);
+                    ItemStack itemStack = EnchantmentHelper.getEnchantedBookWith(new EnchantmentLevelEntry(specialEnchant, level));
+                    int l = 2 + random.nextInt(5 + level * 10) + 3 * level;
+                    if (specialEnchant.isIn(EnchantmentTags.DOUBLE_TRADE_PRICE)) l *= 2;
+                    if (l > 64) l = 64;
+
+                    return new EnchantedBookFactory(itemStack, l, 30);
+                }
+            }
+        }
+
         Optional<RegistryEntry<Enchantment>> optional = villagerEntity.getWorld()
                 .getRegistryManager()
                 .getOrThrow(RegistryKeys.ENCHANTMENT)

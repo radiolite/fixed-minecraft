@@ -3,7 +3,7 @@
         "minecraft:feather_falling",
         "minecraft:sweeping_edge",
         "minecraft:power",
-        "minecraft:unbreaking",
-        "minecraft:channeling"
+        "minecraft:channeling",
+        "minecraft:unbreaking"
     ]
 }

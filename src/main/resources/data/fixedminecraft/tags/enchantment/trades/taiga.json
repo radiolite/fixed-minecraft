@@ -3,8 +3,8 @@
         "minecraft:blast_protection",
         "minecraft:bane_of_arthropods",
         "minecraft:riptide",
-        "minecraft:fortune",
         "minecraft:flame",
-        "minecraft:density"
+        "minecraft:density",
+        "minecraft:fortune"
     ]
 }
